@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:food_nutrition_analysis/global_variables.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
@@ -14,11 +16,47 @@ class FoodNutritionComposition extends StatefulWidget {
 class _FoodNutritionCompositionState extends State<FoodNutritionComposition> {
   XFile? imageFile;
 
-  void pickImage() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+  Future<void> _pickImage(ImageSource source) async {
+    final pickedFile = await ImagePicker().pickImage(source: source);
+
+    if (pickedFile != null) {
+      setState(() {
+        imageFile = pickedFile;
+      });
+    }
+  }
+
+  void _showPickerOptions() {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera),
+              title: const Text('Kamera'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pickImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Galeri'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pickImage(ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _removeImage() {
     setState(() {
-      imageFile = image;
+      imageFile = null;
     });
   }
 
@@ -68,31 +106,48 @@ class _FoodNutritionCompositionState extends State<FoodNutritionComposition> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      ImagePicker()
-                          .pickImage(source: ImageSource.camera)
-                          .then((value) {
-                        setState(() {
-                          imageFile = value;
-                        });
-                      });
-                    },
-                    child: const Icon(
-                      Icons.camera_alt,
-                      size: 100,
-                      color: Colors.deepOrangeAccent,
+                  if (imageFile != null)
+                    Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Image.file(
+                            File(imageFile!.path),
+                            width: 300,
+                            height: 175,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Positioned(
+                          top: 10,
+                          right: 10,
+                          child: GestureDetector(
+                            onTap: _removeImage,
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              padding: const EdgeInsets.all(4),
+                              child: const Icon(
+                                Icons.delete,
+                                color: Colors.redAccent,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    GestureDetector(
+                      onTap: _showPickerOptions,
+                      child: const Icon(
+                        Icons.camera_alt,
+                        size: 100,
+                        color: Colors.deepOrangeAccent,
+                      ),
                     ),
-                  ),
-                  const Text(
-                    'unggah atau ambil foto',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
                 ],
               ),
             ),
