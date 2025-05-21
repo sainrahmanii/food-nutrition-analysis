@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:food_nutrition_analysis/global_variables.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:image_picker/image_picker.dart';
 
 class FoodNutritionComposition extends StatefulWidget {
   const FoodNutritionComposition({super.key});
@@ -9,6 +12,16 @@ class FoodNutritionComposition extends StatefulWidget {
 }
 
 class _FoodNutritionCompositionState extends State<FoodNutritionComposition> {
+  XFile? imageFile;
+
+  void pickImage() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    setState(() {
+      imageFile = image;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,15 +65,26 @@ class _FoodNutritionCompositionState extends State<FoodNutritionComposition> {
                 borderRadius: BorderRadius.circular(20),
               ),
               padding: const EdgeInsets.all(10),
-              child: const Column(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.camera_alt,
-                    size: 100,
-                    color: Colors.deepOrangeAccent,
+                  GestureDetector(
+                    onTap: () {
+                      ImagePicker()
+                          .pickImage(source: ImageSource.camera)
+                          .then((value) {
+                        setState(() {
+                          imageFile = value;
+                        });
+                      });
+                    },
+                    child: const Icon(
+                      Icons.camera_alt,
+                      size: 100,
+                      color: Colors.deepOrangeAccent,
+                    ),
                   ),
-                  Text(
+                  const Text(
                     'unggah atau ambil foto',
                     style: TextStyle(
                       color: Colors.black,
@@ -73,7 +97,11 @@ class _FoodNutritionCompositionState extends State<FoodNutritionComposition> {
               ),
             ),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                GenerativeModel model = GenerativeModel(
+                    model: 'gemini-1.5-flash-latest', apiKey: apiKey);
+                model.generateContent([]);
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepOrangeAccent,
                 fixedSize: const Size(250, 50),
