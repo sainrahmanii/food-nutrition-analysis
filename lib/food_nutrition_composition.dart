@@ -153,6 +153,52 @@ class _FoodNutritionCompositionState extends State<FoodNutritionComposition> {
             ),
             ElevatedButton(
               onPressed: () {
+                if (imageFile == null) {
+                  // Pop-up jika gambar belum ditambahkan
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      title: const Row(
+                        children: [
+                          Icon(
+                            Icons.warning_amber_rounded,
+                            color: Colors.orange,
+                            size: 32,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Gambar Belum Ada!',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      content: const Text(
+                        'Silakan tambahkan gambar terlebih dahulu sebelum melakukan analisis.',
+                        style: TextStyle(
+                          fontSize: 14,
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.deepOrangeAccent,
+                          ),
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text(
+                            'OK',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                  return;
+                }
                 GenerativeModel model = GenerativeModel(
                     model: 'gemini-1.5-flash-latest',
                     apiKey: apiKey,
