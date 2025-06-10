@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:food_nutrition_analysis/global_variables.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -15,6 +15,8 @@ class FoodNutritionComposition extends StatefulWidget {
 
 class _FoodNutritionCompositionState extends State<FoodNutritionComposition> {
   XFile? imageFile;
+
+  final apiKey = dotenv.env["API_KEY"] ?? "";
 
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await ImagePicker().pickImage(source: source);
