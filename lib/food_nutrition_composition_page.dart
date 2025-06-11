@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:food_nutrition_analysis/loading_page.dart';
+import 'package:food_nutrition_analysis/result_page.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -154,7 +157,7 @@ class _FoodNutritionCompositionState extends State<FoodNutritionComposition> {
               ),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 if (imageFile == null) {
                   // Pop-up jika gambar belum ditambahkan
                   showDialog(
@@ -201,16 +204,28 @@ class _FoodNutritionCompositionState extends State<FoodNutritionComposition> {
                   );
                   return;
                 }
-                GenerativeModel model = GenerativeModel(
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return const LoadingPage();
+                    },
+                  ),
+                );
+
+                try {
+                  final model = GenerativeModel(
                     model: 'gemini-1.5-flash-latest',
                     apiKey: apiKey,
-                    systemInstruction: Content.system('''
+                    systemInstruction: Content.system(
+                      '''
                         Kamu adalah seorang nutrisionis yang ahli dalam menganalisis komposisi nutrisi makanan.
                         Tugas kamu adalah memberikan analisis yang akurat dan komprehensif tentang komposisi nutrisi, kandungan gizi, dan kehalalan dari gambar makanan yang diberikan.
                         Kamu harus memberikan informasi yang jelas dan mudah dipahami, serta menyertakan rekomendasi jika diperlukan.
                         Pastikan untuk selalu memberikan informasi yang sesuai dengan gambar yang diberikan.
                         Jika gambar tidak jelas atau tidak dapat dianalisis, berikan penjelasan yang sesuai.
-                        berikan saya dalam bentuk json saja, tanpa penjelasan tambahan dengan format berikut:
+                        berikan saya dalam json saja, tanpa penjelasan tambahan dengan format berikut:
                         {
                           "nama_makanan": "nama makanan",
                           "komposisi_nutrisi": {
@@ -223,8 +238,57 @@ class _FoodNutritionCompositionState extends State<FoodNutritionComposition> {
                           "kehalalan": "status kehalalan (halal atau tidak halal)",
                           infromasi tambahan: "informasi tambahan jika ada"
                         }
-                      '''));
-                model.generateContent([]);
+                      ''',
+                    ),
+                  );
+
+                  final imageBytes = await imageFile!.readAsBytes();
+                  final imagePart = DataPart('image/jpeg', imageBytes);
+
+                  final response = await model.generateContent([
+                    Content.multi([
+                      imagePart,
+                      TextPart(
+                        'Analisis gambar ini sesuai dengan instruksi',
+                      ),
+                    ])
+                  ]);
+
+                  try {
+                    final cleanJsonString = response.text!
+                        .replaceAll("```json", "")
+                        .replaceAll("```", "")
+                        .trim();
+
+                    final jsonData = jsonDecode(cleanJsonString);
+
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ResultPage(data: jsonData),
+                      ),
+                    );
+                  } catch (e) {
+                    print("Parsing Error: ${response.text}");
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: Text("Format Tidak Valid"),
+                        content: Text(
+                            "Respons dari AI bukan JSON.\n\n${response.text}"),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  Navigator.pop(context); // Tutup halaman loading
+                  showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: Text("Terjadi Kesalahan"),
+                      content: Text(e.toString()),
+                    ),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepOrangeAccent,
