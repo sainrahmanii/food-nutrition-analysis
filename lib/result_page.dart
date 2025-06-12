@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_nutrition_analysis/komposisi_nutrisi_grid.dart';
 
 class ResultPage extends StatelessWidget {
   final Map<String, dynamic> data;
@@ -7,10 +8,10 @@ class ResultPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final komposisi = data['komposisi_nutrisi'] ?? {};
+    final komposisi = data['komposisi_nutrisi'] as Map<String, dynamic>? ?? {};
     final namaMakanan = data['nama_makanan'] ?? 'Tidak diketahui';
     final kehalalan = data['kehalalan'] ?? 'Tidak diketahui';
-    final tambahan = data['infromasi_tambahan'] ?? '-';
+    final tambahan = data['informasi_tambahan'] ?? '-';
 
     return Scaffold(
       appBar: AppBar(
@@ -25,61 +26,95 @@ class ResultPage extends StatelessWidget {
         ),
         backgroundColor: Colors.deepOrangeAccent,
         foregroundColor: Colors.white,
+        elevation: 4,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
-        child: Card(
-          elevation: 5,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: ListView(
+        child: Column(
+          children: [
+            _buildCard(
+              icon: Icons.fastfood_rounded,
+              title: 'Nama Makanan',
+              content: namaMakanan,
+              color: Colors.orange.shade50,
+            ),
+            _buildCard(
+              icon: Icons.verified_outlined,
+              title: 'Status Kehalalan',
+              content: kehalalan,
+              color: Colors.green.shade50,
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  namaMakanan,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    const Icon(Icons.verified, color: Colors.green),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Kehalalan: $kehalalan',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
                 const Text(
                   'Komposisi Nutrisi:',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 10),
-                ...komposisi.entries.map((e) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2),
-                      child: Text('${e.key}: ${e.value}'),
-                    )),
-                const SizedBox(height: 20),
-                const Text(
-                  'Informasi Tambahan:',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(tambahan),
+                const SizedBox(height: 12),
+                KomposisiNutrisiTable(komposisi: komposisi),
               ],
             ),
+            _buildCard(
+              icon: Icons.info_outline_rounded,
+              title: 'Informasi Tambahan',
+              content: tambahan,
+              color: Colors.purple.shade50,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCard({
+    required IconData icon,
+    required String title,
+    String? content,
+    Widget? contentWidget,
+    Color? color,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 6,
+            offset: Offset(0, 3),
           ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 32, color: Colors.deepOrange),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  contentWidget ??
+                      Text(
+                        content ?? '-',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
