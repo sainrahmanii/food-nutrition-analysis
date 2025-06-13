@@ -13,6 +13,7 @@ class KomposisiNutrisiTable extends StatelessWidget {
       'lemak': Icons.oil_barrel,
       'serat': Icons.grass,
       'vitamin': Icons.local_florist,
+      'kolesterol': Icons.health_and_safety,
     };
 
     final colorMap = {
@@ -21,6 +22,7 @@ class KomposisiNutrisiTable extends StatelessWidget {
       'lemak': Colors.red.shade100,
       'serat': Colors.blue.shade100,
       'vitamin': Colors.purple.shade100,
+      'kolesterol': Colors.pink.shade100,
     };
 
     final items = komposisi.entries.toList();

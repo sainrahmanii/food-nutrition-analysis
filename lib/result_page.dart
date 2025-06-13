@@ -11,6 +11,14 @@ class ResultPage extends StatelessWidget {
     final komposisi = data['komposisi_nutrisi'] as Map<String, dynamic>? ?? {};
     final namaMakanan = data['nama_makanan'] ?? 'Tidak diketahui';
     final kehalalan = data['kehalalan'] ?? 'Tidak diketahui';
+    final komposisiMakananRaw = data['komposisi_makanan'];
+    final komposisiMakanan = komposisiMakananRaw is List
+        ? List<String>.from(komposisiMakananRaw)
+        : komposisiMakananRaw
+            .toString()
+            .split(',')
+            .map((e) => e.trim())
+            .toList();
     final tambahan = data['informasi_tambahan'] ?? '-';
 
     return Scaffold(
@@ -55,6 +63,8 @@ class ResultPage extends StatelessWidget {
                 KomposisiNutrisiTable(komposisi: komposisi),
               ],
             ),
+            const SizedBox(height: 15),
+            _buildKomposisiMakanan(komposisiMakanan),
             _buildCard(
               icon: Icons.info_outline_rounded,
               title: 'Informasi Tambahan',
@@ -119,4 +129,57 @@ class ResultPage extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _buildKomposisiMakanan(List<String> items) {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(16),
+    margin: const EdgeInsets.only(bottom: 20),
+    decoration: BoxDecoration(
+      color: Colors.orange.shade50,
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Icon(Icons.list_alt_rounded, color: Colors.deepOrange, size: 24),
+            SizedBox(width: 8),
+            Text(
+              'Komposisi Makanan',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        ...items.map((item) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(top: 4),
+                  child: Icon(Icons.radio_button_checked,
+                      size: 10, color: Colors.deepOrange),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    item,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ],
+    ),
+  );
 }

@@ -233,8 +233,10 @@ class _FoodNutritionCompositionState extends State<FoodNutritionComposition> {
                             "protein": "jumlah protein",
                             "lemak": "jumlah lemak",
                             "serat": "jumlah serat",
-                            "vitamin": "jenis vitamin"
+                            "vitamin": "jenis vitamin",
+                            "kolesterol": "jumlah kolestrol",
                           },
+                          "komposisi_makanan": "komposisi makanan",
                           "kehalalan": "status kehalalan (halal atau tidak halal)",
                           infromasi tambahan: "informasi tambahan jika ada"
                         }
