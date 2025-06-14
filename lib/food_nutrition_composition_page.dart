@@ -238,7 +238,7 @@ class _FoodNutritionCompositionState extends State<FoodNutritionComposition> {
                           },
                           "komposisi_makanan": "komposisi makanan",
                           "kehalalan": "status kehalalan (halal atau tidak halal)",
-                          infromasi tambahan: "informasi tambahan jika ada"
+                          infromasi_tambahan: "informasi tambahan jika ada"
                         }
                       ''',
                     ),
